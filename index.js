@@ -31,12 +31,48 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
 
-        const collection = client.db("modernTable").collection("");
-   
-        app.get("/", async(req, res)=>{
-            const result = await collection.find().toArray()
-            res.send(result) 
+        const usersCollection = client.db("cashNPay").collection("users");
+
+
+
+        app.post('/jwt', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.TOKEN_SECRET, {
+                expiresIn: '3h'
+            })
+            res.send({ token })
         })
+
+
+        app.get("/", async (req, res) => {
+            const result = await usersCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/users', async (req, res) => {
+            const result = await usersCollection.toArray()
+            res.send(result)
+        })
+        app.post('/users', async (req, res) => {
+            const cursor = req.body;
+            const result = await usersCollection.insertOne(cursor)
+            res.send(result)
+        })
+
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const result = await usersCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await usersCollection.deleteOne(query)
+            res.send(result)
+        })
+
 
     } finally {
     }
