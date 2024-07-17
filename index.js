@@ -32,6 +32,7 @@ async function run() {
     try {
 
         const usersCollection = client.db("cashNPay").collection("users");
+        const transactionsCollection = client.db("cashNPay").collection("transactions");
 
 
 
@@ -43,15 +44,25 @@ async function run() {
             res.send({ token })
         })
 
-
-
-        app.get('/users', async (req, res) => {
-            const result = await usersCollection.toArray()
+        app.get('/history', async (req, res) => {
+            const result = await transactionsCollection.toArray()
             res.send(result)
         })
+
+        app.get('/users', async (req, res) => {
+            const result = await usersCollection.find().toArray()
+            res.send(result)
+        })
+
         app.post('/users', async (req, res) => {
             const cursor = req.body;
             const result = await usersCollection.insertOne(cursor)
+            res.send(result)
+        })
+
+        app.post('/history', async (req, res) => {
+            const cursor = req.body;
+            const result = await transactionsCollection.insertOne(cursor)
             res.send(result)
         })
 
