@@ -44,7 +44,14 @@ async function run() {
         })
 
         app.get('/history', async (req, res) => {
-            const result = await transactionsCollection.toArray()
+            const result = await transactionsCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/history/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {user: id}
+            const result = await transactionsCollection.find(query).toArray()
             res.send(result)
         })
 
