@@ -50,10 +50,36 @@ async function run() {
 
         app.get('/history/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {user: id}
+            const query = { $or: [
+                { to: id },
+                { from: id }
+            ]}
+            console.log(query);
             const result = await transactionsCollection.find(query).toArray()
             res.send(result)
         })
+
+        app.get('/transactionsManagement/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { agentNumber: id}
+            console.log(query);
+            const result = await transactionsCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        app.patch('/users/access/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true }
+            const updatedDoc = {
+                $set: {
+                    status: 'approved'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+
 
         app.get('/users', async (req, res) => {
             const result = await usersCollection.find().toArray()
